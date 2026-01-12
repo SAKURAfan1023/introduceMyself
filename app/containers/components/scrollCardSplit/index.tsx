@@ -26,18 +26,11 @@ export default function ScrollCardSplit() {
   // 6. Scale Down (0.8 - 0.9)
   // 7. Move Up (0.9 - 1)
 
-  // Container Y Position
-  const containerY = useTransform(
-    scrollYProgress,
-    [0, 0.1, 0.9, 1],
-    ["100vh", "0vh", "0vh", "-100vh"]
-  );
-
   // Container Scale
   const containerScale = useTransform(
     scrollYProgress,
     [0.1, 0.2, 0.8, 0.9],
-    [0.8, 1, 1, 0.8] // Visual "big block" effect, scaling up then down
+    [1.2, 1, 1, 1.2] // Visual "big block" effect, scaling up then down
   );
 
   // Cards Gap
@@ -52,19 +45,6 @@ export default function ScrollCardSplit() {
     scrollYProgress,
     [0.3, 0.4, 0.7, 0.8],
     ["0px", "20px", "20px", "0px"]
-  );
-
-  // Cards X Rotation (Flip Up) with Depth
-  const containerRotateX = useTransform(
-    scrollYProgress,
-    [0.1, 0.2],
-    ["45deg", "0deg"]
-  );
-
-  const containerZ = useTransform(
-    scrollYProgress,
-    [0.1, 0.2],
-    ["-100px", "0px"]
   );
 
   // Dynamic Shadow
@@ -84,19 +64,19 @@ export default function ScrollCardSplit() {
   const titleY = useTransform(
     scrollYProgress,
     [0.1, 0.2],
-    ["300%", "-20%"] // Move from behind/bottom to position
+    ["100%", "30%"] // Move from behind/bottom to position
   );
 
   const titleScale = useTransform(
     scrollYProgress,
     [0.15, 0.2],
-    [0.8, 1] // "Depth effect" - starts small/far, gets bigger
+    [0.8, 0.8] // "Depth effect" - starts small/far, gets bigger
   );
 
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0.1, 0.11, 0.8, 0.9],
-    [0, 1, 1, 0]
+    [0.8, 0.9],
+    [1, 0]
   );
 
   // --- Card Content Animations ---
@@ -140,12 +120,6 @@ export default function ScrollCardSplit() {
             scale: titleScale,
             opacity: titleOpacity,
             zIndex: 0, // Behind cards initially? No, user said "from underlying", so maybe start lower z-index or just visual placement.
-            // If it appears *above* the rectangles in the final layout, but animates from "bottom", standard flex works.
-            // If it needs to be strictly "behind" in z-space, we need absolute positioning.
-            // "placed above three equal area rectangular containers" -> DOM order or visual order.
-            // "0.15-0.2: Title container appears from the bottom of the three parallel containers and scales slightly larger"
-            // This suggests it might be behind them? Or just moving up from below them.
-            // I'll keep it simple: relative positioning, negative margin or transform.
           }}
           className="mb-8 text-center z-10" // z-10 to be on top when fully visible?
         >
@@ -158,11 +132,9 @@ export default function ScrollCardSplit() {
         {/* Cards Container */}
         <motion.div
           style={{
-            y: containerY,
+            y: "0vh",
             scale: containerScale,
             gap: cardsGap,
-            rotateX: containerRotateX,
-            z: containerZ,
             boxShadow: containerShadow,
             transformOrigin: "bottom center", // Pivot from bottom
             transformStyle: "preserve-3d", // Ensure children 3D context is preserved

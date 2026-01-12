@@ -4,7 +4,7 @@ import {
     DraggableCardContainer,
 } from "@/components/ui/draggable-card";
 
-export function DraggableCardDemo() {
+export function DraggableCardDemo({ onTitleClick }: { onTitleClick?: () => void }) {
     const items = [
         {
             title: "Tyler Durden",
@@ -51,7 +51,10 @@ export function DraggableCardDemo() {
     ];
     return (
         <DraggableCardContainer className="relative flex min-h-screen w-full items-center justify-center overflow-clip">
-            <p className="absolute top-1/2 mx-auto max-w-sm -translate-y-3/4 text-center text-2xl font-black text-neutral-400 md:text-4xl dark:text-neutral-800">
+            <p
+                onClick={onTitleClick}
+                className="absolute top-1/2 mx-auto max-w-sm -translate-y-3/4 text-center text-2xl font-black text-neutral-400 md:text-4xl dark:text-neutral-800 cursor-pointer hover:text-neutral-600 dark:hover:text-neutral-600 transition-colors"
+            >
                 If its your first day at Fight Club, you have to fight.
             </p>
             {items.map((item) => (
@@ -61,7 +64,9 @@ export function DraggableCardDemo() {
                         alt={item.title}
                         className="pointer-events-none relative z-10 h-80 w-80 object-cover"
                     />
-                    <h3 className="mt-4 text-center text-2xl font-bold text-neutral-700 dark:text-neutral-300">
+                    <h3
+                        className="mt-4 text-center text-2xl font-bold text-neutral-700 dark:text-neutral-300  hover:text-neutral-900 transition-colors"
+                    >
                         {item.title}
                     </h3>
                 </DraggableCardBody>

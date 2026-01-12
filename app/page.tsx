@@ -9,10 +9,13 @@ import MouseParallaxHero from "@/app/containers/components/home/MouseParallaxHer
 import ScrollCardSplit from "@/app/containers/components/scrollCardSplit";
 import PhotoGallery from "@/app/containers/components/photoGallery";
 import { DraggableCardDemo } from "@/app/containers/components/dragShow";
+import MapSvg from "@/app/containers/components/mapSvg";
 import ScrollTextBright from "@/app/containers/components/scrollTextBright";
 
 export default function Home() {
   const [isHeroVisible, setIsHeroVisible] = useState(false);
+  const [isMapRevealed, setIsMapRevealed] = useState(false);
+  const [isGalleryVisible, setIsGalleryVisible] = useState(false);
 
   // 监听全局滚动
   const { scrollY } = useScroll();
@@ -62,14 +65,30 @@ export default function Home() {
         <ScrollCardSplit />
       </div>
 
-      {/* Draggable Card Demo Section */}
-      <div className="relative z-10">
-        <DraggableCardDemo />
-      </div>
+      {/* Draggable Card Demo Section & Map Transition */}
+      <div className="relative z-10 w-[100vw] h-[400vh] overflow-clip">
+        {/* Map Layer */}
+        <motion.div
+          className="absolute inset-0 z-0"
+          initial={{ clipPath: "circle(0% at 50% 50%)" }}
+          animate={isMapRevealed ? { clipPath: "circle(150% at 50% 50%)" } : { clipPath: "circle(0% at 50% 50%)" }}
+          transition={{ duration: 1.5, ease: "easeIn" }}
+        >
+          <MapSvg onLeshanClick={() => {
+            // setIsMapRevealed(false);
+            setIsGalleryVisible(true);
+          }} />
+        </motion.div>
 
-      {/* Infinite Scroll Photo Gallery */}
-      <div className="relative z-10">
-        <PhotoGallery />
+        {/* Draggable Card Demo - Absolute Overlay */}
+        <div className={`absolute inset-0 z-10 transition-opacity duration-1000 ${isMapRevealed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <DraggableCardDemo onTitleClick={() => setIsMapRevealed(true)} />
+        </div>
+
+        {/* Infinite Scroll Photo Gallery */}
+        <div className={`absolute bottom-0 z-10 w-full transition-opacity duration-1000 ${isGalleryVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+          <PhotoGallery />
+        </div>
       </div>
     </main>
   );
