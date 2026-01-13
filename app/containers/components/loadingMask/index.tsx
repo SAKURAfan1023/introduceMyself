@@ -71,7 +71,7 @@ const LoadingMask = ({ onAnimationComplete }: { onAnimationComplete?: () => void
               : { width: 0, height: '10px' }
         }
         transition={{
-          duration: step === 'opening' ? 1.2 : 1.0,
+          duration: step === 'opening' ? 0.8 : 0.5,
           ease: "easeInOut"
         }}
         onAnimationComplete={() => {

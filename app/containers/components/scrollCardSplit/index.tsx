@@ -4,8 +4,44 @@ import React, { useRef } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "motion/react";
 import { GridPattern } from "@/components/ui/grid-pattern";
 import { cn } from "@/lib/utils";
+import { StaticImageData } from "next/image";
 
-export default function ScrollCardSplit() {
+export type ImageSource = string | StaticImageData;
+
+export interface ScrollCardSplitProps {
+  /** Image shown initially (Img 1) */
+  frontImage?: ImageSource;
+  /** Image that fades in (Img 2). Can be a single source (split) or an array of 3 sources (separate images). */
+  middleImage?: ImageSource | [ImageSource, ImageSource, ImageSource];
+  /** Image shown on the back after flip (Img 3) */
+  backImage?: ImageSource;
+}
+
+const DEFAULT_IMAGES = {
+  front: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?q=80&w=3648&auto=format&fit=crop",
+  middle: [
+    "https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=3070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1421789665209-c9b2a435e3dc?q=80&w=3542&auto=format&fit=crop",
+  ] as [string, string, string],
+  back: "https://images.unsplash.com/photo-1501854140801-50d01698950b?q=80&w=2600&auto=format&fit=crop",
+};
+
+/**
+ * Helper to get the URL string from an ImageSource (string or StaticImageData)
+ */
+function getImgUrl(src: ImageSource): string {
+  if (typeof src === "string") {
+    return src;
+  }
+  return src.src;
+}
+
+export default function ScrollCardSplit({
+  frontImage = DEFAULT_IMAGES.front,
+  middleImage = DEFAULT_IMAGES.middle,
+  backImage = DEFAULT_IMAGES.back,
+}: ScrollCardSplitProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Offset "start end" -> "end end" means:
@@ -40,6 +76,12 @@ export default function ScrollCardSplit() {
     ["0px", "30px", "30px", "0px"]
   );
 
+  const containerWidth = useTransform(
+    scrollYProgress,
+    [0.3, 0.4, 0.7, 0.8],
+    ["64rem", "75rem", "75rem", "64rem"] // Visual "big block" effect, scaling up then down
+  );
+
   // Cards Border Radius
   const cardsBorderRadius = useTransform(
     scrollYProgress,
@@ -53,7 +95,7 @@ export default function ScrollCardSplit() {
     [0.1, 0.2],
     [
       "0px 20px 40px rgba(0,0,0,0.4)", // Deep shadow when tilted
-      "0px 10px 20px rgba(0,0,0,0.2)"  // Tighter shadow when upright
+      "0px 10px 20px rgba(0,0,0,0.2)", // Tighter shadow when upright
     ]
   );
 
@@ -73,11 +115,7 @@ export default function ScrollCardSplit() {
     [0.8, 0.8] // "Depth effect" - starts small/far, gets bigger
   );
 
-  const titleOpacity = useTransform(
-    scrollYProgress,
-    [0.8, 0.9],
-    [1, 0]
-  );
+  const titleOpacity = useTransform(scrollYProgress, [0.8, 0.9], [1, 0]);
 
   // --- Card Content Animations ---
 
@@ -95,7 +133,10 @@ export default function ScrollCardSplit() {
   const frameOpacityEnd = useTransform(scrollYProgress, [0.7, 0.72], [0, 1]);
 
   return (
-    <div ref={containerRef} className="relative h-[400vh] w-full bg-black -mt-[100vh] z-20">
+    <div
+      ref={containerRef}
+      className="relative h-[400vh] w-full bg-black -mt-[100vh] z-20"
+    >
       <div
         className="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden"
         style={{ perspective: "600px" }} // Explicit inline perspective on parent
@@ -124,22 +165,23 @@ export default function ScrollCardSplit() {
           className="mb-8 text-center z-10" // z-10 to be on top when fully visible?
         >
           <h2 className="text-4xl md:text-6xl font-bold text-white">
-            Scroll Animation
+            Results of the first month
           </h2>
-          <p className="text-neutral-400 mt-2">Framer Motion Magic</p>
+          <p className="text-neutral-400 mt-2">TextIn</p>
         </motion.div>
 
         {/* Cards Container */}
         <motion.div
           style={{
             y: "0vh",
+            width: containerWidth,
             scale: containerScale,
             gap: cardsGap,
             boxShadow: containerShadow,
             transformOrigin: "bottom center", // Pivot from bottom
             transformStyle: "preserve-3d", // Ensure children 3D context is preserved
           }}
-          className="flex flex-row items-center justify-center h-[400px] w-full max-w-5xl bg-transparent"
+          className="flex flex-row items-center justify-center h-[500px] w-full bg-transparent"
         >
           {[0, 1, 2].map((i) => (
             <Card
@@ -150,6 +192,9 @@ export default function ScrollCardSplit() {
               frameOpacityStart={frameOpacityStart}
               frameOpacityEnd={frameOpacityEnd}
               index={i}
+              frontImage={frontImage}
+              middleImage={middleImage}
+              backImage={backImage}
             />
           ))}
         </motion.div>
@@ -165,6 +210,9 @@ function Card({
   frameOpacityStart,
   frameOpacityEnd,
   index,
+  frontImage,
+  middleImage,
+  backImage,
 }: {
   img2Opacity: MotionValue<number>;
   rotateY: MotionValue<number>;
@@ -172,7 +220,40 @@ function Card({
   frameOpacityStart: MotionValue<number>;
   frameOpacityEnd: MotionValue<number>;
   index: number;
+  frontImage: ImageSource;
+  middleImage: ImageSource | [ImageSource, ImageSource, ImageSource];
+  backImage: ImageSource;
 }) {
+  // Logic for splitting one image across 3 cards
+  // Total cards = 3.
+  // background-size: 300% 100%
+  // background-position-x:
+  // i=0 -> 0%
+  // i=1 -> 50%
+  // i=2 -> 100%
+  const bgPositionX = `${index * 50}%`;
+  const bgSize = "300% 100%";
+
+  // Determine middle image source
+  let middleBgImage = "";
+  let middleBgSize = "";
+  let middleBgPos = "";
+
+  if (Array.isArray(middleImage)) {
+    // Array mode: Use specific image for this index
+    middleBgImage = `url(${getImgUrl(middleImage[index])})`;
+    middleBgSize = "cover";
+    middleBgPos = "center";
+  } else {
+    // String mode: Use split logic
+    middleBgImage = `url(${getImgUrl(middleImage)})`;
+    middleBgSize = bgSize;
+    middleBgPos = `${bgPositionX} center`;
+  }
+
+  const frontBgUrl = getImgUrl(frontImage);
+  const backBgUrl = getImgUrl(backImage);
+
   return (
     <motion.div
       style={{
@@ -239,33 +320,53 @@ function Card({
 
       {/* Front Face */}
       <motion.div
-        className="absolute inset-0 w-full h-full backface-hidden rounded-none overflow-hidden"
+        className="absolute inset-0 w-full h-full backface-hidden rounded-none overflow-hidden bg-white"
         style={{ backfaceVisibility: "hidden", borderRadius }}
       >
         {/* Image 1 (Base) */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center rounded-none">
-          <span className="text-2xl font-bold text-white/50">Img 1</span>
-        </div>
+        <div
+          className="absolute inset-0 bg-cover bg-no-repeat"
+          style={{
+            backgroundImage: `url(${frontBgUrl})`,
+            backgroundPosition: `${bgPositionX} center`,
+            backgroundSize: bgSize,
+          }}
+        />
 
         {/* Image 2 (Overlay) */}
         <motion.div
           style={{ opacity: img2Opacity }}
-          className="absolute inset-0 bg-gradient-to-br from-purple-600 to-indigo-500 flex items-center justify-center rounded-none"
+          className="absolute inset-0 bg-cover bg-no-repeat"
         >
-          <span className="text-2xl font-bold text-white/50">Img 2</span>
+          <div
+            className="absolute inset-0 bg-cover bg-no-repeat"
+            style={{
+              backgroundImage: middleBgImage,
+              backgroundPosition: middleBgPos,
+              backgroundSize: middleBgSize,
+            }}
+          />
         </motion.div>
       </motion.div>
 
       {/* Back Face */}
       <motion.div
-        className="absolute inset-0 w-full h-full backface-hidden rounded-none overflow-hidden bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center rounded-none"
+        className="absolute inset-0 w-full h-full backface-hidden rounded-none overflow-hidden bg-white"
         style={{
           backfaceVisibility: "hidden",
           transform: "rotateY(180deg)",
           borderRadius,
         }}
       >
-        <span className="text-2xl font-bold text-white/50">Img 3</span>
+        {/* Image 3 */}
+        <div
+          className="absolute inset-0 bg-cover bg-no-repeat"
+          style={{
+            backgroundImage: `url(${backBgUrl})`,
+            backgroundPosition: `${bgPositionX} center`,
+            backgroundSize: bgSize,
+          }}
+        />
       </motion.div>
     </motion.div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   motion,
   useScroll,
@@ -11,6 +11,7 @@ import {
   useAnimationFrame,
   useInView,
   wrap,
+  AnimatePresence,
 } from "motion/react";
 import { galleryData } from "./data";
 
@@ -18,9 +19,11 @@ interface ParallaxRowProps {
   images: string[];
   baseVelocity: number;
   isInView: boolean;
+  isPaused: boolean;
+  onImageHover: (src: string | null) => void;
 }
 
-function ParallaxRow({ images, baseVelocity, isInView }: ParallaxRowProps) {
+function ParallaxRow({ images, baseVelocity, isInView, isPaused, onImageHover }: ParallaxRowProps) {
   const baseX = useMotionValue(0);
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
@@ -43,7 +46,8 @@ function ParallaxRow({ images, baseVelocity, isInView }: ParallaxRowProps) {
 
   useAnimationFrame((t, delta) => {
     // Stop animation if not in view to save performance
-    if (!isInView) return;
+    // Also stop if paused (mouse enter)
+    if (!isInView || isPaused) return;
 
     let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
 
@@ -78,7 +82,9 @@ function ParallaxRow({ images, baseVelocity, isInView }: ParallaxRowProps) {
         {displayImages.map((src, idx) => (
           <div
             key={idx}
-            className="relative h-[200px] w-[300px] flex-shrink-0 overflow-hidden rounded-xl"
+            className="relative h-[200px] w-[300px] flex-shrink-0 overflow-hidden rounded-xl cursor-pointer hover:opacity-80 transition-opacity"
+            onMouseEnter={() => onImageHover(src)}
+            onMouseLeave={() => onImageHover(null)}
           >
             <img
               src={src}
@@ -94,33 +100,54 @@ function ParallaxRow({ images, baseVelocity, isInView }: ParallaxRowProps) {
 
 export default function PhotoGallery() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  // Trigger when 30% of the component is visible
+  // Trigger when 10% of the component is visible
   const isInView = useInView(containerRef, {
     amount: 0.1,
     once: false
   });
 
+  // Combine all images into one row
+  const allImages = [
+    ...galleryData.row1,
+  ];
+
   return (
     <section
       ref={containerRef}
-      className="w-full py-20 flex flex-col gap-8 overflow-hidden bg-transparent"
+      className="w-full py-20 flex flex-col gap-8 overflow-hidden bg-transparent relative"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
     >
       <ParallaxRow
-        images={galleryData.row1}
-        baseVelocity={2}
+        images={allImages}
+        baseVelocity={1}
         isInView={isInView}
+        isPaused={isPaused}
+        onImageHover={setPreviewImage}
       />
-      <ParallaxRow
-        images={galleryData.row2}
-        baseVelocity={-2}
-        isInView={isInView}
-      />
-      <ParallaxRow
-        images={galleryData.row3}
-        baseVelocity={2}
-        isInView={isInView}
-      />
+
+      <AnimatePresence>
+        {previewImage && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+          >
+            <div className="relative max-w-[80vw] max-h-[80vh] p-2 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20">
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="w-full h-full object-contain rounded-xl max-h-[75vh]"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

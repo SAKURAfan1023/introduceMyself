@@ -11,6 +11,11 @@ import PhotoGallery from "@/app/containers/components/photoGallery";
 import { DraggableCardDemo } from "@/app/containers/components/dragShow";
 import MapSvg from "@/app/containers/components/mapSvg";
 import ScrollTextBright from "@/app/containers/components/scrollTextBright";
+import bannerImg from "@/public/banner.avif";
+import understandingLayer from "@/public/understandingLayer.avif";
+import scen3Img from "@/public/scen3.png";
+import scen2Img from "@/public/scen2.png";
+import scen1Img from "@/public/scen1.png";
 
 export default function Home() {
   const [isHeroVisible, setIsHeroVisible] = useState(false);
@@ -62,7 +67,15 @@ export default function Home() {
 
       {/* Scroll Card Split Animation Section */}
       <div className="relative z-10">
-        <ScrollCardSplit />
+        <ScrollCardSplit
+          frontImage={bannerImg}
+          middleImage={[
+            scen1Img,
+            scen2Img,
+            scen3Img
+          ]}
+          backImage={understandingLayer}
+        />
       </div>
 
       {/* Draggable Card Demo Section & Map Transition */}

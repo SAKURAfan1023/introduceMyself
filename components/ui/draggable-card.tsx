@@ -53,7 +53,8 @@ export const DraggableCardBody = ({
       onDragEnd={() => {
         document.body.style.cursor = "default";
       }}
-      whileHover={{ scale: 1.1 }}
+      whileHover={{ scale: 2 }}
+      whileDrag={{ scale: 1.1 }}
       className={cn(
         "relative min-h-96 w-80 overflow-hidden rounded-md bg-neutral-100 p-6 shadow-2xl dark:bg-neutral-900",
         className,
