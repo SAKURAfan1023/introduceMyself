@@ -4,15 +4,12 @@ import React, { useEffect, useState } from "react";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
-import EmeiMountain from "./img/EmeiMountain.webp";
+import EmeiMountain from "./img/EmeiMountain.jpg";
 import LeshanGiantBuddha from "./img/LeshanBuddha.webp";
+import monkey from "./img/monkey.png";
+import snow from "./img/snow.png";
 
 export const cardsData = [
-    {
-        title: "双遗产",
-        description: "Hover over this card to unleash the power of CSS perspective",
-        image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-    },
     {
         title: "乐山大佛",
         description: "全名嘉州凌云寺大弥勒石像，世界上最高的石佛像",
@@ -22,7 +19,17 @@ export const cardsData = [
         title: "峨眉山",
         description: "四大佛教名山，金顶海拔3077米",
         image: EmeiMountain
-    }
+    },
+    {
+        title: "幽谷灵猴",
+        description: "峨眉山灵猴，以顽皮著称",
+        image: monkey
+    },
+    {
+        title: "峨眉山雪景",
+        description: "奇峰、林海、云雾与冰雪相交织的奇景",
+        image: snow
+    },
 ];
 
 export function ThreeDCardDemo({ scale = 1, onClick, index = 0 }: { scale?: number; onClick?: () => void; index?: number }) {

@@ -73,20 +73,20 @@ export default function ScrollCardSplit({
   const cardsGap = useTransform(
     scrollYProgress,
     [0.3, 0.4, 0.7, 0.8],
-    ["0px", "30px", "30px", "0px"]
+    ["0vw", "2vw", "2vw", "0vw"]
   );
 
   const containerWidth = useTransform(
     scrollYProgress,
     [0.3, 0.4, 0.7, 0.8],
-    ["64rem", "75rem", "75rem", "64rem"] // Visual "big block" effect, scaling up then down
+    ["70vw", "85vw", "85vw", "70vw"] // Visual "big block" effect, scaling up then down
   );
 
   // Cards Border Radius
   const cardsBorderRadius = useTransform(
     scrollYProgress,
     [0.3, 0.4, 0.7, 0.8],
-    ["0px", "20px", "20px", "0px"]
+    ["0vw", "1.5vw", "1.5vw", "0vw"]
   );
 
   // Dynamic Shadow
@@ -181,7 +181,7 @@ export default function ScrollCardSplit({
             transformOrigin: "bottom center", // Pivot from bottom
             transformStyle: "preserve-3d", // Ensure children 3D context is preserved
           }}
-          className="flex flex-row items-center justify-center h-[500px] w-full bg-transparent"
+          className="flex flex-row items-center justify-center h-[60vh] w-full bg-transparent"
         >
           {[0, 1, 2].map((i) => (
             <Card
@@ -270,22 +270,22 @@ function Card({
             style={{
               opacity: frameOpacityStart,
               borderTopLeftRadius: borderRadius,
-              borderTop: "8px solid black",
-              borderLeft: "8px solid black",
+              borderTop: "0.5vw solid black",
+              borderLeft: "0.5vw solid black",
               zIndex: 30,
             }}
-            className="absolute -top-5 -left-5 w-1/4 h-1/4 pointer-events-none"
+            className="absolute -top-[1.5vw] -left-[1.5vw] w-1/4 h-1/4 pointer-events-none"
           />
           {/* End: Top Right (after flip) */}
           <motion.div
             style={{
               opacity: frameOpacityEnd,
               borderTopRightRadius: borderRadius,
-              borderTop: "8px solid black",
-              borderRight: "8px solid black",
+              borderTop: "0.5vw solid black",
+              borderRight: "0.5vw solid black",
               zIndex: 30,
             }}
-            className="absolute -top-5 -right-5 w-1/4 h-1/4 pointer-events-none"
+            className="absolute -top-[1.5vw] -right-[1.5vw] w-1/4 h-1/4 pointer-events-none"
           />
         </>
       )}
@@ -298,22 +298,22 @@ function Card({
             style={{
               opacity: frameOpacityStart,
               borderBottomRightRadius: borderRadius,
-              borderBottom: "8px solid black",
-              borderRight: "8px solid black",
+              borderBottom: "0.5vw solid black",
+              borderRight: "0.5vw solid black",
               zIndex: 30,
             }}
-            className="absolute -bottom-5 -right-5 w-1/4 h-1/4 pointer-events-none"
+            className="absolute -bottom-[1.5vw] -right-[1.5vw] w-1/4 h-1/4 pointer-events-none"
           />
           {/* End: Bottom Left (after flip) */}
           <motion.div
             style={{
               opacity: frameOpacityEnd,
               borderBottomLeftRadius: borderRadius,
-              borderBottom: "8px solid black",
-              borderLeft: "8px solid black",
+              borderBottom: "0.5vw solid black",
+              borderLeft: "0.5vw solid black",
               zIndex: 30,
             }}
-            className="absolute -bottom-5 -left-5 w-1/4 h-1/4 pointer-events-none"
+            className="absolute -bottom-[1.5vw] -left-[1.5vw] w-1/4 h-1/4 pointer-events-none"
           />
         </>
       )}

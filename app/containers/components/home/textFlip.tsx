@@ -3,7 +3,7 @@ import { ContainerTextFlip } from "@/components/ui/container-text-flip";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
-export function ContainerTextFlipDemo() {
+export function ContainerTextFlipDemo({ onClick }: { onClick?: () => void }) {
     const words = ["Anime", "Editing", "Design", "Music", "Travel", "Game"];
     return (
         <motion.h1
@@ -13,8 +13,10 @@ export function ContainerTextFlipDemo() {
             whileInView={{
                 opacity: 1,
             }}
+            onClick={onClick}
             className={cn(
                 "relative mb-6 max-w-1xl text-left text-4xl leading-normal font-bold tracking-tight text-white md:text-6xl z-10",
+                onClick && "cursor-pointer"
             )}
             transition={{ duration: 1 }}
             layout

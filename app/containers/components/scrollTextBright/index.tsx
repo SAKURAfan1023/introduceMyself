@@ -2,24 +2,31 @@
 
 import { useScroll, useTransform, motion, MotionValue, useMotionValueEvent } from "motion/react";
 import React, { useRef, useState } from "react";
+import Image, { StaticImageData } from "next/image";
+import me from "@/public/basicInfo/me.webp";
+import school from "@/public/basicInfo/school.webp";
+import knowledge from "@/public/basicInfo/knowledge.webp";
+import competitor from "@/public/basicInfo/competitor.png";
+
 
 const items = [
   "生日：2003年10月23日，今年22岁",
   "就读于东北大学通信工程专业，本科生",
-  "来自四川省乐山市",
+  "来自四川省乐山市峨眉山市",
   "是26届前端校招生，目前是提前实习阶段",
-  "在王学彤老师的带领下学习业务、前端知识",
+  "在学彤的带领下重点学习三大前端基础，深挖新技术",
+  "在指引下调研竞品，培养思维方式和能力",
   "在TextIn官网项目中负责部分前端页面动效",
 ];
 
-// 占位图片数组，实际项目中请替换为真实图片路径
-const images = [
-  "https://picsum.photos/400/250?random=1",
-  "https://picsum.photos/400/250?random=2",
-  "https://picsum.photos/400/250?random=3",
-  "https://picsum.photos/400/250?random=4",
-  "https://picsum.photos/400/250?random=5",
-  "https://picsum.photos/400/250?random=6",
+const images: (string | StaticImageData)[] = [
+  me,
+  school,
+  "",
+  "",
+  knowledge,
+  competitor,
+  "",
 ];
 
 export default function ScrollTextBright() {
@@ -47,8 +54,8 @@ export default function ScrollTextBright() {
   return (
     <div ref={containerRef} className="relative h-[500vh] w-full">
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden bg-white">
-        <div className="max-w-5xl px-8">
-          <ul className="flex flex-col gap-8 text-4xl font-bold leading-tight text-black md:text-5xl lg:text-5xl list-disc pl-10">
+        <div className="w-[80vw] px-[2vw]">
+          <ul className="flex flex-col gap-[4vh] text-[3vw] font-bold leading-tight text-black list-disc pl-[3vw]">
             {items.map((item, index) => {
               const itemStartCharIndex = itemStartIndices[index];
               // 计算当前item在整体进度中的起始和结束位置
@@ -57,12 +64,14 @@ export default function ScrollTextBright() {
 
               return (
                 <li key={index} className="relative">
-                  <PopupImage
-                    src={images[index]}
-                    progress={mappedProgress}
-                    range={[itemStartProgress, itemEndProgress]}
-                    position={index < 3 ? "bottom" : "top"}
-                  />
+                  {images[index] && (
+                    <PopupImage
+                      src={images[index]}
+                      progress={mappedProgress}
+                      range={[itemStartProgress, itemEndProgress]}
+                      position={index < 3 ? "bottom" : "top"}
+                    />
+                  )}
                   {item.split("").map((char, charIndex) => {
                     // 计算每个字符的“点亮”区间
                     const globalCharIndex = itemStartCharIndex + charIndex;
@@ -86,7 +95,7 @@ export default function ScrollTextBright() {
 }
 
 interface PopupImageProps {
-  src: string;
+  src: string | StaticImageData;
   progress: MotionValue<number>;
   range: [number, number];
   position: "top" | "bottom";
@@ -111,11 +120,17 @@ const PopupImage = ({ src, progress, range, position }: PopupImageProps) => {
   return (
     <motion.div
       initial={{ height: 0 }}
-      animate={{ height: isOpen ? 200 : 0 }}
+      animate={{ height: isOpen ? 400 : 0 }}
       transition={{ duration: 0.5 }}
-      className={`absolute z-10 w-80 overflow-hidden rounded-lg shadow-lg ${positionClass}`}
+      className={`absolute z-10 w-[30vw] overflow-hidden rounded-lg shadow-lg ${positionClass}`}
     >
-      <img src={src} alt="popup" className="h-full w-full object-cover" />
+      <Image
+        src={src}
+        alt="popup"
+        fill
+        className="object-cover"
+        sizes="100vw, 400px"
+      />
     </motion.div>
   );
 };

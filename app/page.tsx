@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { GridPattern } from "@/components/ui/grid-pattern";
 import { cn } from "@/lib/utils";
@@ -17,17 +17,34 @@ import scen3Img from "@/public/scen3.png";
 import scen2Img from "@/public/scen2.png";
 import scen1Img from "@/public/scen1.png";
 
+const MountTrigger = ({ onMount }: { onMount: () => void }) => {
+  useEffect(() => {
+    onMount();
+  }, [onMount]);
+  return null;
+};
+
 export default function Home() {
   const [isHeroVisible, setIsHeroVisible] = useState(false);
+  const [isMapMounted, setIsMapMounted] = useState(false);
   const [isMapRevealed, setIsMapRevealed] = useState(false);
   const [isGalleryVisible, setIsGalleryVisible] = useState(false);
+  const [windowHeight, setWindowHeight] = useState(800);
+
+  useEffect(() => {
+    // 初始化和监听窗口大小
+    const updateHeight = () => setWindowHeight(window.innerHeight);
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
 
   // 监听全局滚动
   const { scrollY } = useScroll();
 
   // 幕帘上拉效果：
-  // 滚动 0 -> 800px 期间，Hero 组件从 0vh 移动到 -100vh（向上移出视口）
-  const heroY = useTransform(scrollY, [0, 800], ["0vh", "-100vh"]);
+  // 滚动 0 -> windowHeight 期间，Hero 组件从 0vh 移动到 -100vh（向上移出视口）
+  const heroY = useTransform(scrollY, [0, windowHeight], ["0vh", "-100vh"]);
 
   return (
     <main className="relative w-full min-h-screen">
@@ -79,30 +96,38 @@ export default function Home() {
       </div>
 
       {/* Draggable Card Demo Section & Map Transition */}
-      <div className="relative z-10 w-[100vw] h-[400vh] overflow-clip">
+      <motion.div
+        className="relative z-10 w-[100vw] overflow-clip"
+        initial={{ height: "100vh" }}
+        animate={{ height: isMapMounted ? "400vh" : "100vh" }}
+        transition={{ duration: 1, ease: "easeInOut" }}
+      >
         {/* Map Layer */}
-        <motion.div
-          className="absolute inset-0 z-0"
-          initial={{ clipPath: "circle(0% at 50% 50%)" }}
-          animate={isMapRevealed ? { clipPath: "circle(150% at 50% 50%)" } : { clipPath: "circle(0% at 50% 50%)" }}
-          transition={{ duration: 1.5, ease: "easeIn" }}
-        >
-          <MapSvg onLeshanClick={() => {
-            // setIsMapRevealed(false);
-            setIsGalleryVisible(true);
-          }} />
-        </motion.div>
+        {isMapMounted && (
+          <motion.div
+            className="absolute inset-0 z-0"
+            initial={{ clipPath: "circle(0% at 50% 50%)" }}
+            animate={isMapRevealed ? { clipPath: "circle(150% at 50% 50%)" } : { clipPath: "circle(0% at 50% 50%)" }}
+            transition={{ duration: 1.5, ease: "easeIn" }}
+          >
+            <MapSvg onLeshanClick={() => {
+              // setIsMapRevealed(false);
+              setIsGalleryVisible(true);
+            }} />
+            <MountTrigger onMount={() => setIsMapRevealed(true)} />
+          </motion.div>
+        )}
 
         {/* Draggable Card Demo - Absolute Overlay */}
         <div className={`absolute inset-0 z-10 transition-opacity duration-1000 ${isMapRevealed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <DraggableCardDemo onTitleClick={() => setIsMapRevealed(true)} />
+          <DraggableCardDemo onTitleClick={() => setIsMapMounted(true)} />
         </div>
 
         {/* Infinite Scroll Photo Gallery */}
         <div className={`absolute bottom-0 z-10 w-full transition-opacity duration-1000 ${isGalleryVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
           <PhotoGallery />
         </div>
-      </div>
+      </motion.div>
     </main>
   );
 }

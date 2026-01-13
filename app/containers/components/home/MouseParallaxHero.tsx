@@ -1,17 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { motion, useMotionValue, useSpring, useTransform, useScroll, useMotionValueEvent } from 'motion/react';
 import { ContainerTextFlipDemo } from './textFlip';
+import city from '@/public/firstScreen/city.webp';
+import sea from '@/public/firstScreen/sea.jpg';
+import zheDuo from '@/public/firstScreen/zheDuo.jpg';
+import seaSide from '@/public/firstScreen/seaSide.jpg';
+import singapore from '@/public/firstScreen/singapore.jpg';
+import fuji from '@/public/firstScreen/fuji.jpg';
 
 const scatteredImages = [
-  { id: 1, top: '7%', left: '6%', width: '20vw', speed: 0.05, src: 'abstract%20art%201' },
-  { id: 2, top: '10%', left: '70%', width: '17vw', speed: 0.08, src: 'abstract%20art%202' },
-  { id: 3, top: '67%', left: '20%', width: '15vw', speed: 0.06, src: 'abstract%20art%203' },
-  { id: 4, top: '69%', left: '70%', width: '14vw', speed: 0.04, src: 'abstract%20art%204' },
-  { id: 5, top: '15%', left: '43%', width: '12vw', speed: 0.1, src: 'abstract%20art%205' },
-  { id: 6, top: '63%', left: '45%', width: '14vw', speed: 0.07, src: 'abstract%20art%206' },
+  { id: 1, top: '7%', left: '6%', width: '20vw', speed: 0.05, src: city },
+  { id: 2, top: '10%', left: '70%', width: '17vw', speed: 0.08, src: sea },
+  { id: 3, top: '67%', left: '20%', width: '15vw', speed: 0.06, src: zheDuo },
+  { id: 4, top: '69%', left: '70%', width: '14vw', speed: 0.04, src: seaSide },
+  { id: 5, top: '15%', left: '43%', width: '12vw', speed: 0.1, src: singapore },
+  { id: 6, top: '63%', left: '45%', width: '14vw', speed: 0.07, src: fuji },
 ];
 
 type ScatteredImage = (typeof scatteredImages)[number];
@@ -98,10 +105,12 @@ function ParallaxImage({
             className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
             style={{ boxShadow: '0 0 30px rgba(255,255,255,0.6)' }}
           />
-          <img
-            src={`https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=${img.src}&image_size=square`}
+          <Image
+            src={img.src}
             alt={`Decoration ${img.id}`}
-            className="w-full h-full object-cover rounded-lg shadow-2xl"
+            className="object-cover rounded-lg shadow-2xl"
+            fill
+            sizes={img.width}
             draggable={false}
           />
         </div>
@@ -118,6 +127,7 @@ const MouseParallaxHero = ({ active = true }: { active?: boolean }) => {
   const smoothY = useSpring(mouseY, { stiffness: 180, damping: 26 });
   const { scrollY } = useScroll();
   const [isVisible, setIsVisible] = useState(true);
+  const isExitingRef = useRef(false);
 
   // Control the entrance state based on `active` prop
   // If not active, everything should be hidden regardless of scroll
@@ -127,12 +137,28 @@ const MouseParallaxHero = ({ active = true }: { active?: boolean }) => {
   const titleY = useTransform(smoothY, (v) => v * 0.02);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
+    if (isExitingRef.current) return;
     if (latest > 10 && isVisible) {
       setIsVisible(false);
     } else if (latest <= 10 && !isVisible) {
       setIsVisible(true);
     }
   });
+
+  const handleExit = async () => {
+    isExitingRef.current = true;
+    setIsVisible(false);
+
+    // Wait for exit animation (1.0s)
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    window.scrollTo({ top: 800, behavior: "smooth" });
+
+    // Reset lock after scroll is likely done
+    setTimeout(() => {
+      isExitingRef.current = false;
+    }, 2000);
+  };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -155,7 +181,7 @@ const MouseParallaxHero = ({ active = true }: { active?: boolean }) => {
         transition={{ duration: 0.8, ease: "easeInOut" }}
         className="z-20 relative mix-blend-difference"
       >
-        <ContainerTextFlipDemo />
+        <ContainerTextFlipDemo onClick={handleExit} />
       </motion.div>
 
       {scatteredImages.map((img, index) => (
