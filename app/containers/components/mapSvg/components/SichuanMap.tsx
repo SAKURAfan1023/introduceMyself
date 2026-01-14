@@ -82,7 +82,7 @@ const SichuanMap = ({ onLeshanClick, ...props }: SichuanMapProps) => {
 					onMouseEnter={handleMouseEnter}
 					onMouseLeave={handleMouseLeave}
 				>
-					<ThreeDCardDemo scale={0.23} onClick={onLeshanClick} index={cardIndex} />
+					<ThreeDCardDemo scale={0.23} onClick={onLeshanClick} onSwitch={handleLeshanClick} index={cardIndex} />
 				</div>
 			)}
 		</motion.div>

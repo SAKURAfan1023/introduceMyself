@@ -10,19 +10,19 @@ import competitor from "@/public/basicInfo/competitor.png";
 
 
 const items = [
+  "胡力帆，是26届前端校招生，目前是提前实习阶段",
   "生日：2003年10月23日，今年22岁",
   "就读于东北大学通信工程专业，本科生",
   "来自四川省乐山市峨眉山市",
-  "是26届前端校招生，目前是提前实习阶段",
-  "在学彤的带领下重点学习三大前端基础，深挖新技术",
-  "在指引下调研竞品，培养思维方式和能力",
+  "在学彤的带领下重点夯实三大前端基础，探索前沿技术",
+  "在指引下调研竞品，培养产品思维和技术视野",
   "在TextIn官网项目中负责部分前端页面动效",
 ];
 
 const images: (string | StaticImageData)[] = [
+  "",
   me,
   school,
-  "",
   "",
   knowledge,
   competitor,

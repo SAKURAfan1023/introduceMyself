@@ -12,7 +12,7 @@ import snow from "./img/snow.png";
 export const cardsData = [
     {
         title: "乐山大佛",
-        description: "全名嘉州凌云寺大弥勒石像，世界上最高的石佛像",
+        description: "中国佛教艺术的代表，全名嘉州凌云寺大弥勒石像，是世界上最高的石佛像，脚下三江汇流，气势恢宏",
         image: LeshanGiantBuddha
     },
     {
@@ -32,7 +32,7 @@ export const cardsData = [
     },
 ];
 
-export function ThreeDCardDemo({ scale = 1, onClick, index = 0 }: { scale?: number; onClick?: () => void; index?: number }) {
+export function ThreeDCardDemo({ scale = 1, onClick, onSwitch, index = 0 }: { scale?: number; onClick?: () => void; onSwitch?: (e: React.MouseEvent) => void; index?: number }) {
     const card = cardsData[index % cardsData.length];
 
     return (
@@ -60,7 +60,7 @@ export function ThreeDCardDemo({ scale = 1, onClick, index = 0 }: { scale?: numb
                             >
                                 {card.description}
                             </CardItem>
-                            <CardItem translateZ="100" className="w-full mt-4">
+                            <CardItem translateZ="100" className="w-full mt-4 cursor-pointer" onClick={onSwitch}>
                                 <Image
                                     src={card.image}
                                     height={1000}
